@@ -1,4 +1,5 @@
 #!/bin/sh
+sudo apt update
 
 set -e #arrête le script si code retour non 0
 
@@ -42,7 +43,7 @@ install_package "git"
 
 #installation des composants necessaires
 echo "${GREEN}$(date +'%Y-%m-%d %H:%M:%S') [ INFO  ] : Démarrage installation composants ... ${NC}"
-pip3 install pymongo flask 
+pip3 install pymongo flask boto3 Markdown
 
 # https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
 
@@ -69,6 +70,14 @@ ufw --force enable
 # On autorise les ports ssh et 5000
 ufw allow ssh
 ufw allow 5000/tcp
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+apt install unzip
+
+unzip awscliv2.zip
+
+./aws/install
 
 echo "####### SUCCESS #######"
 

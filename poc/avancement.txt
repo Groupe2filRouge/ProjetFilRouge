@@ -1,0 +1,8 @@
+Gitpython inutile comme lib la lib system peut le faire
+
+Markdown lib ok, manque l'algo de table des matières
+
+https://realpython.com/python-boto3-aws-s3/
+https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
+
+Il faut prendre en compte les autorisations comme dans le tp pour y accéder
