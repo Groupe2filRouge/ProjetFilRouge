@@ -30,7 +30,7 @@ jobs:
         run: echo Hello, world!
 
       - name: Deploy Stage
-        uses: apalpant/http-request-action@main
+        uses: ProjetFilRouge/http-request-action@main
         with:
           url: 'http://192.168.1.1:5000'
           method: 'POST'
