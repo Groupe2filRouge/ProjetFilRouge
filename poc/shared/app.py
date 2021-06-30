@@ -7,7 +7,21 @@ import subprocess
 
 import uuid
 
+import requests
+import json
+
 app = Flask(__name__)
+
+WELCOME_BLOCK = {
+    "type": "section",
+    "text": {
+        "type": "mrkdwn",
+        "text": (
+            "Welcome to Slack! :wave: We're so glad you're here. :blush:\n\n"
+            "*Get started by completing the steps below:*"
+        ),
+    },
+}
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -51,6 +65,83 @@ def push(bucket):
     s3_client.upload_file("/home/shared/tmp/README.html", "lebucketpythondalex", "keyfilename")
     return "ok"
 
+@app.route("/github-webhook/", methods=["POST"])
+def test():
+    # print(request.data)
+    data = json.loads(request.data)
+    print ("full_name: {}".format(data['repository']['full_name']))
+    print ("html_url: {}.git".format(data['repository']['html_url']))
+    print ("New commit by: {}".format(data['commits'][0]['author']['name']))
+    
+    blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Welcome to Slack! :wave: We're so glad you're here. :blush:\n\n*Get started by completing the steps below:*",
+            },
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":white_large_square: *Add an emoji reaction to this message* :thinking_face:\nYou can quickly respond to any message on Slack with an emoji reaction. Reactions can be used for any purpose: voting, checking off to-do items, showing excitement.",
+            },
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": " :information_source: *<" + data['repository']['html_url'] +"|Learn How to Use Emoji Reactions>*",
+                }
+            ],
+        }
+    ]
+    
+               
+    return post_message_to_slack("Text shown in popup.", blocks);
+
+@app.route("/slack", methods=["GET"])
+def slack():
+    # return requests.post('https://slack.com/api/chat.postMessage', {
+    #     'token': ,
+    #     'channel': ,
+    #     'icon_emoji': ":robot_face:",
+    #     'username': "botfilrouge",
+    #     "blocks": [
+    #         json.dumps({
+    #             "type": "section",
+    #             "text": {
+    #                 "type": "mrkdwn",
+    #                 "text": "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
+    #             }
+    #         })
+    #     ],
+    # }).json()
+    blocks = [
+        {  
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
+        }
+        }
+    ]
+
+    return post_message_to_slack("Text shown in popup.", blocks);
+
+
+def post_message_to_slack(text, blocks = None):
+    return requests.post('https://slack.com/api/chat.postMessage', {
+        'token': 'xoxb-1883936723840-2238634768673-pDZ8Z0Xi84ScsLMJyOHicITy',
+        'channel': 'C027BKQ8LSC',
+        'text': text,
+        'icon_emoji': ':see_no_evil:',
+        'username': "botfilrouge",
+        'blocks': json.dumps(blocks) if blocks else None
+    }).json()	
 
 # Checks to see if the name of the package is the run as the main package.
 if __name__ == "__main__":

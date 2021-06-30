@@ -15,3 +15,13 @@ https://github.com/marketplace/actions/http-request-action
 https://github.com/marketplace/actions/send-message-to-slack
 
 https://github.com/marketplace/actions/webhook-post-action
+
+reprendre les webhook avec ngrok
+
+gestion des branches !!!
+
+https://github.com/slackapi/python-slack-sdk/tree/main/tutorial
+
+https://keestalkstech.com/2019/10/simple-python-code-to-send-message-to-slack-channel-without-packages/
+
+https://github.com/slackapi/python-slack-sdk/blob/main/tutorial/02-building-a-message.md

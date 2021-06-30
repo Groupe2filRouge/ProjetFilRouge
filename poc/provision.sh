@@ -79,6 +79,8 @@ unzip awscliv2.zip
 
 ./aws/install
 
+
+
 echo "####### SUCCESS #######"
 
 # On lance le serveur Flask et on presente notre API.
