@@ -135,7 +135,7 @@ def slack():
 
 def post_message_to_slack(text, blocks = None):
     return requests.post('https://slack.com/api/chat.postMessage', {
-        'token': 'xoxb-1883936723840-2238634768673-pDZ8Z0Xi84ScsLMJyOHicITy',
+        'token': '',
         'channel': 'C027BKQ8LSC',
         'text': text,
         'icon_emoji': ':see_no_evil:',
