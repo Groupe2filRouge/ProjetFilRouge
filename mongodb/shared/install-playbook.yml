@@ -1,0 +1,90 @@
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install packages that allow apt to be used over HTTPS
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+
+    - name: Add an apt signing key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+
+    - name: Install docker and its dependecies
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+      notify:
+        - docker status
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        group: docker
+      
+    - name: Read-write git checkout from github
+      git:
+        repo: https://github.com/deviantony/docker-elk
+        dest: /home/shared/docker-elk/
+
+    - name: Download docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+
+    - name: Touch the same file, but add some permissions
+      file:
+        path: /usr/local/bin/docker-compose
+        state: touch
+        mode: u+x,g+x,o+x
+
+    - name: launch docker compose elk
+      tags: 
+        - elk
+      command:
+        chdir: /home/shared/docker-elk/
+        cmd: docker-compose up --build -d
+
+    - name: launch docker compose mongo
+      become_user: vagrant
+      tags: 
+        - mongo
+      command:
+        chdir: /home/shared/mongodb/
+        cmd: docker-compose up -d
+
+    - name: launch docker Jenkins
+      tags: 
+        - jenkins
+      command:
+        cmd: docker run -d -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+
+    # - name: Copy python.conf 
+    #   copy:
+    #     src: /home/shared/python.conf
+    #     dest: /home/shared/docker-elk/logstash/pipeline       
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
+

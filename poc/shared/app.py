@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from git import Repo
+# from git import Repo
 import markdown
 import boto3
 
@@ -135,7 +135,7 @@ def slack():
 
 def post_message_to_slack(text, blocks = None):
     return requests.post('https://slack.com/api/chat.postMessage', {
-        'token': '',
+        'token': 'xoxb-1883936723840-2238634768673-hUWHxQtmi3dW2W6P90I0mjbs',
         'channel': 'C027BKQ8LSC',
         'text': text,
         'icon_emoji': ':see_no_evil:',
