@@ -6,7 +6,12 @@
 #le clone et la conversion se font dans un répertoir temporaire qu'il faut supprimer après traitement.
 
 #Rassembler le clone et la conversion en une seule fonction.
+#https://realpython.com/working-with-files-in-python/
 
+#pour le traitement d'une arborescence de fichiers, il faudrait pouvoir gérer la traversée récusive des dossiers/fichiers, et appliquer un traitement si le fichier est en *.md
+#en outre, il faut pouvoir reproduire l'arborescence eu fur et à mesure en html, et créer d'une façon ou d'une autre un lien hypertexte entre des fichiers qui sont liés par une relation parent/enfant
+#dans l'arborescence.
+#le module tempfile permet de résoudre le problème des fichiers/dossiers temporaires
 
 from flask import Flask, render_template, request
 #from git import Repo
@@ -33,25 +38,37 @@ WELCOME_BLOCK = {
     },
 }
 
+#@app.route("/", methods=['GET', 'POST'])
+#def index():
+#    if request.method == 'POST':
+#        lien = request.form['git']
+#        subprocess.Popen(['git', 'clone', str(lien), '/home/vagrant/tmp/clone'])
+#        return lien
+#    return render_template('index.html')
+
+#@app.route("/md", methods=["GET"])
+#def convert():
+#    with open('/home/vagrant/tmp/clone/README.md', 'r') as f:
+#        text = f.read()
+#        html = markdown.markdown(text)
+
+#    with open('/home/shared/tmp/README.html', 'w') as f:
+#        f.write(html)
+
+#    return "ok"
+
 @app.route("/", methods=['GET', 'POST'])
-def index():
+def fonct_conversion():
     if request.method == 'POST':
-        lien = request.form['git']
-        subprocess.Popen(['git', 'clone', str(lien), '/home/vagrant/tmp/clone'])
-        return lien
-    return render_template('index.html')
-
-# @app.route("/clone/<string:adress>", methods=["GET"])
-@app.route("/md", methods=["GET"])
-def convert():
-    with open('/home/vagrant/tmp/clone/README.md', 'r') as f:
-        text = f.read()
-        html = markdown.markdown(text)
-
-    with open('/home/shared/tmp/README.html', 'w') as f:
-        f.write(html)
-
-    return "ok"
+        url_git_util = request.form['git']
+        subprocess.Popen(['git', 'clone', str(url_git_util), '/home/vagrant/tmp/clone'])
+        with open('/home/vagrant/tmp/clone/README.md', 'r') as fichier_md: #à généraliser pour traiter pour chaque fichier cloné
+            contenu_md=fichier_md.read()
+            var_html=markdown.markdown(contenu_md)
+            with open('/home/shared/tmp/README.html', 'w') as fichier_html:
+                fichier_html.write(var_html)
+    
+    return render_template('index.html') #page de saisie url
 
 def create_bucket_name(bucket_prefix):
     # The generated bucket name must be between 3 and 63 chars long
@@ -145,7 +162,7 @@ def slack():
 
 def post_message_to_slack(text, blocks = None):
     return requests.post('https://slack.com/api/chat.postMessage', {
-        'token': 'xoxb-1883936723840-2238634768673-GXejjanSfJHnQELVQmzXihW7',
+        'token': '',
         'channel': 'C027BKQ8LSC',
         'text': text,
         'icon_emoji': ':see_no_evil:',
