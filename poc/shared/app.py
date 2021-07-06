@@ -1,5 +1,15 @@
+#cloner => fait dans une méthode (index())
+#convertir en html (respect arborescence) => fait dans convert() sans respect de l'arborescence.
+
+#faire table des matières dans un second temps
+
+#le clone et la conversion se font dans un répertoir temporaire qu'il faut supprimer après traitement.
+
+#Rassembler le clone et la conversion en une seule fonction.
+
+
 from flask import Flask, render_template, request
-from git import Repo
+#from git import Repo
 import markdown
 import boto3
 
@@ -135,7 +145,7 @@ def slack():
 
 def post_message_to_slack(text, blocks = None):
     return requests.post('https://slack.com/api/chat.postMessage', {
-        'token': '',
+        'token': 'xoxb-1883936723840-2238634768673-GXejjanSfJHnQELVQmzXihW7',
         'channel': 'C027BKQ8LSC',
         'text': text,
         'icon_emoji': ':see_no_evil:',
