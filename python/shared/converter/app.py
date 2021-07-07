@@ -30,6 +30,13 @@ def webhook():
     # converterSrv.convert()
     # cloudSrv.push("")
 
+@app.route("/enzo", methods=["GET"])
+def enzo():
+    # TODO - remove tmp file after method
+    # gitSrv.clone("https://github.com/Groupe2filRouge/ProjetFilRouge.git")
+    converterSrv.convert()
+    return "Done"
+
 # The test adress for slack
 @app.route("/testSlack", methods=["GET"])
 def testSlack():
