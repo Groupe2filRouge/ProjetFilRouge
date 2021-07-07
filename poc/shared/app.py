@@ -9,7 +9,7 @@
 #https://realpython.com/working-with-files-in-python/
 
 #pour le traitement d'une arborescence de fichiers, il faudrait pouvoir gérer la traversée récusive des dossiers/fichiers, et appliquer un traitement si le fichier est en *.md
-#en outre, il faut pouvoir reproduire l'arborescence eu fur et à mesure en html, et créer d'une façon ou d'une autre un lien hypertexte entre des fichiers qui sont liés par une relation parent/enfant
+#en outre, il faut pouvoir reproduire l'arborescence au fur et à mesure en html, et créer d'une façon ou d'une autre un lien hypertexte entre des fichiers qui sont liés par une relation parent/enfant
 #dans l'arborescence.
 #le module tempfile permet de résoudre le problème des fichiers/dossiers temporaires
 
