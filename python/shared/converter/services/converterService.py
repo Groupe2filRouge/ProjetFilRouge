@@ -17,3 +17,6 @@ class ConverterService():
             f.write(html)
 
         return "document converted"
+
+    def browse(self, folder):
+        print('browse from ' + folder)
