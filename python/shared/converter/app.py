@@ -33,7 +33,7 @@ def webhook():
 @app.route("/enzo", methods=["GET"])
 def enzo():
     # TODO - remove tmp file after method
-    # gitSrv.clone("https://github.com/Groupe2filRouge/ProjetFilRouge.git")
+    gitSrv.clone("https://github.com/Groupe2filRouge/ProjetFilRouge.git")
     converterSrv.convert()
     return "Done"
 
