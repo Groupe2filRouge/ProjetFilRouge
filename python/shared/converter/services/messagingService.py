@@ -1,6 +1,13 @@
 import requests
 import json
 
+#For credentials
+from dotenv import load_dotenv
+import os
+
+# Load .env file
+load_dotenv('../.env')
+
 # The service for messaging operations
 class MessagingService():
 
@@ -21,10 +28,14 @@ class MessagingService():
         ]
 
         return self.post_message_to_slack("Text shown in popup.", blocks)
+        
+
 
     # Post a given block message
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
+            'token': os.getenv('SLACK_TOKEN'),
+            'channel': 'C027BKQ8LSC',
             'text': text,
             'icon_emoji': ':see_no_evil:',
             'username': "botfilrouge",
