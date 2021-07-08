@@ -33,7 +33,7 @@ install_package "git"
 
 #installation des composants necessaires
 echo "${GREEN}$(date +'%Y-%m-%d %H:%M:%S') [ INFO  ] : Démarrage installation composants ... ${NC}"
-pip3 install pymongo flask boto3 Markdown
+pip3 install pymongo flask boto3 Markdown python-dotenv
 
 echo "####### SUCCESS #######"
 
