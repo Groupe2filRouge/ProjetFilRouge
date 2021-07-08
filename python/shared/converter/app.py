@@ -19,7 +19,7 @@ gitSrv = GitService()
 app = Flask(__name__)
 
 # The webhook adress for a git account
-@app.route("/git-webhook/", methods=["POST"])
+@app.route("/github-webhook/", methods=["POST"])
 def webhook():
     # TODO - check for others git account (not only github)
     data = json.loads(request.data)
@@ -39,4 +39,4 @@ def testSlack():
 # Checks to see if the name of the package is the run as the main package.
 if __name__ == "__main__":
     # Runs the Flask application only if the main.py file is being run.
-    app.run(host= '0.0.0.0')
+    app.run(host= '0.0.0.0', port=8080)
