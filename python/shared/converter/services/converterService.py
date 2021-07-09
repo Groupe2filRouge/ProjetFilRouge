@@ -2,6 +2,7 @@ import markdown
 import os
 from os import walk
 import tempfile
+import shutil
 
 # The service for convertion operations
 class ConverterService():
@@ -36,15 +37,20 @@ class ConverterService():
         return "document converted"
 
     def browse(self, folder):
-        #destinationFolder = "/home/shared/converter/tmp"
-        destinationFolder= tempfile.TemporaryDirectory(dir = "/home/shared/converter") # support de la concaténation absent pour la partie convert, à changer
+        #dossier temporaire pour la conversion
+        if(not os.path.exists("/home/shared/converter/tmp")):
+            os.makedirs("/home/shared/converter/tmp")
+            destinationFolder="/home/shared/converter/tmp"
+        else:
+            destinationFolder="/home/shared/converter/tmp"
         print('###Dossier temporaire : ', destinationFolder)
+        
         # TODO - doit pouvoir servir pour la table des matieres...
-        listeFichiers = []
+        #listeFichiers = []
         for (repertoire, sousRepertoires, fichiers) in walk(folder):
             #ignore les dossiers cachés
             if(repertoire.find('.')==0):
-                    break
+                break
             for f in fichiers:                
                 # Si on a un ".md" alors on convertit
                 if(f.find(".md") != -1):
@@ -52,6 +58,11 @@ class ConverterService():
                     currentFolder = repertoire[len(folder) - 1 : len(repertoire)]
                     print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
-        destinationFolder.cleanup()
-            
+        
+        #suppression du contenu du dossier temporaire
+        dossier_tmp=destinationFolder
+        try:
+            shutil.rmtree(dossier_tmp)
+        except OSError as erreur:
+            print(f'Error: {dossier_tmp} : {erreur.strerror}')    
         return "Done"
