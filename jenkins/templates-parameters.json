@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "InstanceTypeParameter",
+        "ParameterValue": "t2.micro"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "vm-jenkins-groupe2-filrouge"
+    },
+    {
+        "ParameterKey": "ImageIdParameter",
+        "ParameterValue": "ami-00c08ad1a6ca8ca7c"
+    }
+]

@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for jenkins-groupe2-filrouge
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+  KeyPairName:
+    Type: String
+  ImageIdParameter:
+    Type: String
+
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: 172.31.0.0/24
+      InstanceTenancy: default
+      # Tags: 
+      #   - Key: stack
+      #     Value: vpc-jenkins-groupe2-filrouge
+
+  
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags: 
+        - Key: stack
+          Value: gateway-jenkins-groupe2-filrouge
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: myVPC
+      # Tags:
+      # - Key: stack
+      #   Value: routetable-jenkins-groupe2-filrouge
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: myInternetGateway
+    Properties:
+       RouteTableId:
+         Ref: myRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId:
+         Ref: myInternetGateway
+
+  mySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: 172.31.0.0/24
+      AvailabilityZone: "eu-west-3a"
+      MapPublicIpOnLaunch: true
+      # Tags:
+      # - Key: stack
+      #   Value: subnet-jenkins-groupe2-filrouge
+
+  mySubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnet
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+        GroupDescription: Base Security Group
+        VpcId:
+          Ref: myVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            CidrIp: 0.0.0.0/0
+            FromPort: 22
+            ToPort: 22
+          - IpProtocol: tcp
+            CidrIp: 0.0.0.0/0
+            FromPort: 20
+            ToPort: 20
+          - IpProtocol: tcp
+            FromPort: 8080
+            ToPort: 8080
+            CidrIp: 0.0.0.0/0
+            
+  Ec2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      InstanceType : 
+        Ref: InstanceTypeParameter 
+      ImageId: 
+        Ref: ImageIdParameter
+      KeyName:
+        Ref: KeyPairName
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet: 
+            - Ref: mySecurityGroup
+          SubnetId: 
+            Ref: mySubnet
+      UserData: 
+        Fn::Base64: |
+          #!/bin/bash -xe
+          yum update -y # good practice to update existing packages
+          wget -O /etc/yum.repos.d/jenkins.repo \
+            https://pkg.jenkins.io/redhat-stable/jenkins.repo
+          rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+          yum upgrade
+          yum install jenkins java-1.8.0-openjdk-devel -y
+          systemctl daemon-reload
+          systemctl start jenkins
