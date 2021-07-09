@@ -3,6 +3,7 @@ import os
 from os import walk
 import tempfile
 import shutil
+from markdown.extensions.toc import TocExtension
 
 # Concernant la table des matières
 #Un document *.md = <ul>, un "#" est un menu, plusieurs "#" qui s'enchainent sont des sous-menus
@@ -26,7 +27,7 @@ class ConverterService():
         chemin=folder+fileName
         with open(chemin, 'r') as f:
             text = f.read()
-            html = markdown.markdown(text)
+            html = markdown.markdown(text, extensions=['toc'])
 #permet de créer le nom du fichier html à partir du nom d'origine
         fichierHTML=destinationFolder+currentFolder+fileName[:len(fileName)-3]+".html"
         #permet de créer le chemin de destination en miroir à l'arborescence d'origine
