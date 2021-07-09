@@ -4,6 +4,12 @@ from os import walk
 import tempfile
 import shutil
 
+# Concernant la table des matières
+#Un document *.md = <ul>, un "#" est un menu, plusieurs "#" qui s'enchainent sont des sous-menus
+#La table des matières doit être en haut de la première page (premier doc converti) dans un <div>
+#
+#
+
 # The service for convertion operations
 class ConverterService():
 
@@ -38,13 +44,8 @@ class ConverterService():
 
     def browse(self, folder):
         #dossier temporaire pour la conversion
-        if(not os.path.exists("/home/shared/converter/tmp")):
-            os.makedirs("/home/shared/converter/tmp")
-            destinationFolder="/home/shared/converter/tmp"
-        else:
-            destinationFolder="/home/shared/converter/tmp"
-        print('###Dossier temporaire : ', destinationFolder)
-        
+
+        destinationFolder="/home/shared/converter/tmp"        
         # TODO - doit pouvoir servir pour la table des matieres...
         #listeFichiers = []
         for (repertoire, sousRepertoires, fichiers) in walk(folder):
@@ -59,10 +60,19 @@ class ConverterService():
                     print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
         
-        #suppression du contenu du dossier temporaire
-        dossier_tmp=destinationFolder
-        try:
-            shutil.rmtree(dossier_tmp)
-        except OSError as erreur:
-            print(f'Error: {dossier_tmp} : {erreur.strerror}')    
+            
         return "Done"
+
+
+def suppr():
+    if(not os.path.exists("/home/shared/converter/tmp")):
+        os.makedirs("/home/shared/converter/tmp")
+    else:
+        destinationFolder="/home/shared/converter/tmp"
+        print('###Dossier temporaire : ', destinationFolder)
+        #suppression du contenu du dossier temporaire
+    dossier_tmp=destinationFolder
+    try:
+        shutil.rmtree(dossier_tmp)
+    except OSError as erreur:
+        print(f'Error: {dossier_tmp} : {erreur.strerror}')
