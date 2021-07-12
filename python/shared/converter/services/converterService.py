@@ -23,7 +23,8 @@ class ConverterService():
 
     # Convert local .md file to .html file 
     def convert2Html(self, folder, fileName, currentFolder, destinationFolder):
-
+        # TODO : la fonction ne gère pas les sous-répertoires quand elle trouve des *.md apparement. Peut-être que rajouter un '/' dans 
+        # la concaténation du nom des fichiers devrait suffire...
         chemin=folder+fileName
         with open(chemin, 'r') as f:
             text = f.read()
