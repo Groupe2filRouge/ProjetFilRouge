@@ -19,13 +19,14 @@ class ConverterService():
         print("init ConverterService")
 
     def convert(self):
-        return self.browse("/home/vagrant/tmp/clone/")
+        return self.browse("/home/vagrant/tmp/clone")
 
     # Convert local .md file to .html file 
     def convert2Html(self, folder, fileName, currentFolder, destinationFolder):
         # TODO : la fonction ne gère pas les sous-répertoires quand elle trouve des *.md apparement. Peut-être que rajouter un '/' dans 
         # la concaténation du nom des fichiers devrait suffire...
-        chemin=folder+fileName
+        chemin=folder+"/"+fileName
+        print("le chemin avant conversion :" + chemin)
         with open(chemin, 'r') as f:
             text = f.read()
             html = markdown.markdown(text, extensions=['toc'])
@@ -56,9 +57,10 @@ class ConverterService():
                 break
             for f in fichiers:                
                 # Si on a un ".md" alors on convertit
+                print("Valeur Repertoire : ***"+repertoire)
                 if(f.find(".md") != -1):
                     # Compute current folder where f is 
-                    currentFolder = repertoire[len(folder) - 1 : len(repertoire)]
+                    currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
                     print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
         
