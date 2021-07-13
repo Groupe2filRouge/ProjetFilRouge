@@ -31,7 +31,7 @@ class ConverterService():
             text = f.read()
             html = markdown.markdown(text, extensions=['toc'])
 #permet de créer le nom du fichier html à partir du nom d'origine
-        fichierHTML=destinationFolder+currentFolder+fileName[:len(fileName)-3]+".html"
+        fichierHTML=destinationFolder+currentFolder+"/"+fileName[:len(fileName)-3]+".html"
         #permet de créer le chemin de destination en miroir à l'arborescence d'origine
         destination=destinationFolder+currentFolder
         #écrit les fichiers convertis si l'arborescence miroire existe, crée l'arborescence sinon.
