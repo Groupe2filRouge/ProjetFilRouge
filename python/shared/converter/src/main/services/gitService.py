@@ -9,5 +9,5 @@ class GitService():
 
     # Clone repository from a given adress
     def clone(self, adresse):
-        subprocess.Popen(['git', 'clone', str(adresse), '/home/vagrant/tmp/clone'])
+        subprocess.Popen(['git', 'clone', '-b fil-28', str(adresse), '/home/vagrant/tmp/clone'])
         return "git cloned"

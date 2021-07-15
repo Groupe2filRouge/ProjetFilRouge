@@ -1,0 +1,129 @@
+pipeline {
+    agent any
+    options {
+        // ansiColor('xterm')
+         // This is required if you want to clean before build
+        skipDefaultCheckout(true)
+    }
+    stages {
+        
+        stage('Checkout code') {
+            steps {
+				echo "\u001b[35m[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME} par ${env.NODE_NAME}\u001b[0m"
+                // slackSend channel: 'C021DS82PMG', color: "#439FE0", message: "[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME}"
+                
+                // Clean before all
+                cleanWs()
+                
+                git url:'https://github.com/Groupe2filRouge/AppFilRouge', branch: "main"
+            }
+        }
+		
+		stage('Init') {
+            steps {				
+				// sh 'cp /home/shared/gradle.properties ${WORKSPACE}'
+				
+                script {
+                    env.GIT_COMMIT_MSG = sh (script: 'git log -1 --pretty=%s ${GIT_COMMIT}', returnStdout: true).trim()
+                    env.GIT_COMMIT_NB = sh (script: 'git log -1 --pretty=%h ${GIT_COMMIT}', returnStdout: true).trim()
+                    env.GIT_AUTHOR = sh (script: 'git log -1 --pretty=%an ${GIT_COMMIT}', returnStdout: true).trim()
+                    env.GIT_AUTHOR_MAIL = sh (script: 'git log -1 --pretty=%ae ${GIT_COMMIT}', returnStdout: true).trim()
+                }
+                
+                echo "\u001b[35m[Projet ${env.JOB_NAME}] - Git commit #${env.GIT_COMMIT_NB} \"${env.GIT_COMMIT_MSG}\" @author: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})\u001b[0m"
+                // slackSend channel: 'C021DS82PMG', color: "#439FE0", message: "Dernier commit: https://github.com/apalpant/gradle-jenkins/commit/${env.GIT_COMMIT_NB} \nMessage: \"${env.GIT_COMMIT_MSG}\" par: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})"
+            }
+        }
+       
+        stage('Install dependencies') {
+            steps {
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate'
+                sh 'python3 -m pip install pytest pytest-cov pycodestyle pylint markdown xmlrunner'
+                sh 'pip3 freeze > requirements.txt'
+                // sh 'python3 -m pip install -r requirements.txt'
+            }   
+        }
+        
+        stage('Build application') {
+            steps {
+		echo 'Build application ....'
+                // sh '/opt/gradle/latest/bin/gradle packageDistribution'
+            }
+        }
+        
+       // stage('Tests et controles qualite') {
+        //    parallel {
+                stage('Controle qualite') {
+                    steps {
+                        echo 'Publishing Code QA ....'
+                        
+                        // Run virtual environment
+                        sh '. venv/bin/activate'
+                        
+                        // Run Pylint.
+                        sh 'python3 -m pylint -f parseable ${WORKSPACE}/src/ | tee pylint.report'
+        
+                        // Run Pycodestyle (PEP8 checks).
+                         sh 'python3 -m pycodestyle ${WORKSPACE}/src/ | tee pep8.report'
+                    }
+                    post {
+                        always {
+                           recordIssues(
+                                aggregatingResults: true, 
+                                tools: [pyLint(pattern: 'pylint.report'), pep8(pattern: 'pep8.report')],
+                                unstableTotalAll: 200,
+                                failedTotalAll: 300
+                           )
+                        }
+                    }
+                }
+                
+                stage('Test application') { 
+                    steps {
+                        // Run virtual environment
+                        sh '. venv/bin/activate'
+                        
+                        // Run pytest
+                        // sh 'python3 -m unittest discover -v ${WORKSPACE}/src/'
+                         sh 'python3 -m pytest src/ --cov=src --cov-report=xml'
+                        
+                        // Run coverage.
+                        sh 'python3 -m coverage xml'
+                    }
+                    post {
+                       always {
+                        cobertura coberturaReportFile: '**/coverage.xml'
+                       }
+                    }
+                }
+      //      }
+    //    }
+        
+        stage('deploy') {
+            steps {
+               	echo 'Deploy ....'
+                //sh '/opt/gradle/latest/bin/gradle publish'
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                color = "danger"
+                ansiColor = "\u001b[31m"
+                if (currentBuild.currentResult == "SUCCESS") {
+                    color = "good"
+                    ansiColor = "\u001b[32m"
+                } else if (currentBuild.currentResult == "UNSTABLE") {
+                    color = "warning"
+                    ansiColor = "\u001b[33m"
+                } 
+            }
+            
+ echo "[Projet ${env.JOB_NAME}] - Fin du build avec le statut:  ${currentBuild.currentResult}\u001b[0m (${currentBuild.durationString})"
+           
+// slackSend channel: 'C021DS82PMG', color: "${color}", message: "[Projet ${env.JOB_NAME}] - Fin du build ${env.BUILD_DISPLAY_NAME} avec le statut: ${currentBuild.currentResult} (${currentBuild.durationString}) \nRapports: ${env.BUILD_URL}"
+        }
+    }
+}

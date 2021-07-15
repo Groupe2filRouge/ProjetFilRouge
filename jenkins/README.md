@@ -54,6 +54,29 @@ https://medium.com/appgambit/integrating-jenkins-with-slack-notifications-4f14d1
 
 https://www.baeldung.com/ops/jenkins-slack-integration
 
+### Others
+
+https://www.rderewianko.com/getting-started-with-the-ec2-plugin-for-jenkins/
+
+https://api.github.com/meta
+
+https://intellipaat.com/community/8886/jenkins-private-subnet-webhook-with-github-does-not-trigger-automatic-build
+
+https://support.cloudbees.com/hc/en-us/articles/224621648-GitHub-webhook-troubleshooting
+
+https://www.bogotobogo.com/DevOps/Jenkins/Jenkins_on_EC2_4_GitHubHook_Notification_to_Jenkins_Server.php
+
+https://caylent.com/jenkins-plugins-updated-2020
+
+https://spectralops.io/blog/top-25-jenkins-plugins-for-2021/
+
+https://www.baeldung.com/ops/jenkins-slack-integration
+
+https://www.cprime.com/resources/blog/how-to-integrate-jenkins-github/
+
+https://docs.github.com/en/developers/webhooks-and-events/webhooks/about-webhooks
+
+https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#Download%20and%20Install%20Jenkins
 
 Si la configuration est la bonne à la fin du build vous devez obtenir ceci:
 
