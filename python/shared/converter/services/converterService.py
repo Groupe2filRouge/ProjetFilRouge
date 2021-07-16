@@ -11,6 +11,7 @@ from markdown.extensions.toc import TocExtension
 #
 #
 
+arborescence={} #pour accéder à l'arboscence depuis toutes les fonctions
 # The service for convertion operations
 class ConverterService():
 
@@ -22,11 +23,17 @@ class ConverterService():
         return self.browse("/home/vagrant/tmp/clone")
 
     # Convert local .md file to .html file 
-    def convert2Html(self, folder, fileName, currentFolder, destinationFolder):
-        # TODO : la fonction ne gère pas les sous-répertoires quand elle trouve des *.md apparement. Peut-être que rajouter un '/' dans 
-        # la concaténation du nom des fichiers devrait suffire...
+    def convert2Html(self, folder, fileName, currentFolder, destinationFolder, arborescence):
+        #construit l'arborescence en mémoire
+        if currentFolder in arborescence.keys():
+            arborescence[currentFolder].append(fileName)
+        else:
+            arborescence[currentFolder]=[fileName]
+        print(arborescence)
+
         chemin=folder+"/"+fileName
         print("le chemin avant conversion :" + chemin)
+        #lecture du fichier *.md
         with open(chemin, 'r') as f:
             text = f.read()
             html = markdown.markdown(text, extensions=['toc'])
@@ -44,25 +51,51 @@ class ConverterService():
                 f.write(html)
 
         return "document converted"
+    
+    #Fonction pour faire un arbre déroulant avec l'arborescence des fichiers
+    def ajoutArbre(destinationFolder, destination, chemin, fichierHTML):
+    #partie pour le tree view:
+        for dossier in arborescence.keys():
+            arbo_html="<ul>"+dossier
+            for fichier in arborescence.values():
+                arbo_html+="<li href=\""+fichierHTML+"\">"+fichier+"</li>"
+            arbo_html+="</ul>"
+        print(arbo_html)
+
 
     def browse(self, folder):
         #dossier temporaire pour la conversion
+        # ignore les dossiers cachés
+            # le repertoire = ul
+            # 1 iteration: repertoire = rep courant
+            # 2 iteration: repertoire = arbo
+            # 3 iteration: repertoire = ss-arbo
+ 
+            # Quand tu reparcours pour chaque répertoire tu vas aller voir dans le dictionnaires ces fichiers associes
+            # Concretement "<ul>" + nom_repertoire_epure + (boucle sur les fichiers => "<li>{}</li>".format(nom_fichier)) + "</ul>"
+            # <ul> nom_repertoire_epure => tu prends que la partie apres le dernier slash pour avoir ton nom de repertoire.
+            #   <li href="nom_complet_repertoire + / + nom_fichier"> page 1 </li>
+            #   <li href="arbo + / + page1.html"> page 1 </li>
+            #   <li> page 2 </li>
+            #   # boucle...
+            # </ul>
+            # file.seek(0) pour inserer en debt document, regarder les exemples sur le net
 
-        destinationFolder="/home/shared/converter/tmp"        
-        # TODO - doit pouvoir servir pour la table des matieres...
-        #listeFichiers = []
+        destinationFolder="/home/shared/converter/tmp"   
+            
+        
         for (repertoire, sousRepertoires, fichiers) in walk(folder):
             #ignore les dossiers cachés
             if(repertoire.find('.')==0):
                 break
-            for f in fichiers:                
+            for f in fichiers:
                 # Si on a un ".md" alors on convertit
-                print("Valeur Repertoire : ***"+repertoire)
+                #print("Valeur Repertoire : ***"+repertoire)
                 if(f.find(".md") != -1):
                     # Compute current folder where f is 
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
-                    print("current folder: " + currentFolder)
-                    self.convert2Html(repertoire, f, currentFolder, destinationFolder)
+                    #print("current folder: " + currentFolder)
+                    self.convert2Html(repertoire, f, currentFolder, destinationFolder, arborescence)
         
             
         return "Done"
