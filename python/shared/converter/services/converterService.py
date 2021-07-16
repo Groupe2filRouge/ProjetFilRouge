@@ -53,12 +53,13 @@ class ConverterService():
         return "document converted"
     
     #Fonction pour faire un arbre déroulant avec l'arborescence des fichiers
-    def ajoutArbre(destinationFolder, destination, chemin, fichierHTML):
+    def ajoutArbre(self, destinationFolder, currentFolder, f, repertoire):
     #partie pour le tree view:
+        fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html" #pour reconstruire les noms de fichiers
         for dossier in arborescence.keys():
             arbo_html="<ul>"+dossier
             for fichier in arborescence.values():
-                arbo_html+="<li href=\""+fichierHTML+"\">"+fichier+"</li>"
+                arbo_html+="<li href=\""+fichierHTML+"\">"+fichier+"</li>" #problème de concaténation avec les éléments du dico.
             arbo_html+="</ul>"
         print(arbo_html)
 
@@ -96,7 +97,7 @@ class ConverterService():
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
                     #print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder, arborescence)
-        
+        self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
             
         return "Done"
 
