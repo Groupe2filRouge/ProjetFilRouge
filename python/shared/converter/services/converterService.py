@@ -23,7 +23,7 @@ class ConverterService():
         return self.browse("/home/vagrant/tmp/clone")
 
     # Convert local .md file to .html file 
-    def convert2Html(self, folder, fileName, currentFolder, destinationFolder, arborescence):
+    def convert2Html(self, folder, fileName, currentFolder, destinationFolder):
         #construit l'arborescence en mémoire
         if currentFolder in arborescence.keys():
             arborescence[currentFolder].append(fileName)
@@ -56,11 +56,15 @@ class ConverterService():
     def ajoutArbre(self, destinationFolder, currentFolder, f, repertoire):
     #partie pour le tree view:
         fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html" #pour reconstruire les noms de fichiers
+        print(arborescence)
         for dossier in arborescence.keys():
             arbo_html="<ul>"+dossier
             for fichier in arborescence.values():
-                arbo_html+="<li href=\""+fichierHTML+"\">"+fichier+"</li>" #problème de concaténation avec les éléments du dico.
-            arbo_html+="</ul>"
+                taille = len(fichier)
+                for i in range(taille):
+                    nom=fichier[i]
+                    arbo_html+="<li href=\""+fichierHTML+"\">"+nom+"</li>" #problème de concaténation avec les éléments du dico.
+                arbo_html+="</ul>"
         print(arbo_html)
 
 
@@ -96,7 +100,7 @@ class ConverterService():
                     # Compute current folder where f is 
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
                     #print("current folder: " + currentFolder)
-                    self.convert2Html(repertoire, f, currentFolder, destinationFolder, arborescence)
+                    self.convert2Html(repertoire, f, currentFolder, destinationFolder)
         self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
             
         return "Done"
