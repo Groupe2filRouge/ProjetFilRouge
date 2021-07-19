@@ -57,16 +57,26 @@ class ConverterService():
     #partie pour le tree view:
         fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html" #pour reconstruire les noms de fichiers
         print(arborescence)
+        arbo_html="<ul>"
         for dossier in arborescence.keys():
-            arbo_html="<ul>"+dossier
-            for fichier in arborescence.values():
-                taille = len(fichier)
-                for i in range(taille):
-                    nom=fichier[i]
-                    arbo_html+="<li href=\""+fichierHTML+"\">"+nom+"</li>" #problème de concaténation avec les éléments du dico.
-                arbo_html+="</ul>"
+            arbo_html+="<li>"+dossier+"<ul>"
+            for fichier in arborescence.get(dossier):
+                arbo_html+="<li> <a href=\""+fichier+"\">"+fichier+"</a></li>" 
+                #taille = len(fichier)
+                #for i in range(taille):
+                #    nom=fichier[i]
+                #    arbo_html+="<li> <a href=\""+fichierHTML+"\">"+nom+"</a></li>" 
+            arbo_html+="</ul></li>"
+        arbo_html+="</ul>"
+        
+        
+        fichier = open(fichierHTML, "r")
+        total = arbo_html + fichier.read()
+        fichier.close()
+        fichier = open(fichierHTML, "w")
+        fichier.write(total)
+        fichier.close()
         print(arbo_html)
-
 
     def browse(self, folder):
         #dossier temporaire pour la conversion
@@ -101,7 +111,7 @@ class ConverterService():
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
                     #print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
-        self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
+                    self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
             
         return "Done"
 
