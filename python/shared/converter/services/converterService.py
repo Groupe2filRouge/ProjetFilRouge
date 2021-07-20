@@ -55,17 +55,16 @@ class ConverterService():
     #Fonction pour faire un arbre déroulant avec l'arborescence des fichiers
     def ajoutArbre(self, destinationFolder, currentFolder, f, repertoire):
     #partie pour le tree view:
-        fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html" #pour reconstruire les noms de fichiers
+        fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html"
         print(arborescence)
         arbo_html="<ul>"
         for dossier in arborescence.keys():
             arbo_html+="<li>"+dossier+"<ul>"
             for fichier in arborescence.get(dossier):
-                arbo_html+="<li> <a href=\""+fichier+"\">"+fichier+"</a></li>" 
-                #taille = len(fichier)
-                #for i in range(taille):
-                #    nom=fichier[i]
-                #    arbo_html+="<li> <a href=\""+fichierHTML+"\">"+nom+"</a></li>" 
+                #calcul du chemin relatif des fihiers pour les URL
+                HTML=destinationFolder+dossier+"/"+fichier[:len(fichier)-3]+".html" #pour reconstruire les noms de fichiers
+                cheminRelatif=os.path.relpath(HTML, destinationFolder+currentFolder)
+                arbo_html+="<li> <a href=\""+cheminRelatif+"\">"+fichier[:len(fichier)-3]+"</a></li>" #modifier "fichier" en le chemin relatif des pages HTML pour les URL
             arbo_html+="</ul></li>"
         arbo_html+="</ul>"
         
@@ -111,6 +110,19 @@ class ConverterService():
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
                     #print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
+                    #self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
+        for (repertoire, sousRepertoires, fichiers) in walk(folder):
+            #ignore les dossiers cachés
+            if(repertoire.find('.')==0):
+                break
+            for f in fichiers:
+                # Si on a un ".md" alors on convertit
+                #print("Valeur Repertoire : ***"+repertoire)
+                if(f.find(".md") != -1):
+                    # Compute current folder where f is 
+                    currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
+                    #print("current folder: " + currentFolder)
+                    #self.convert2Html(repertoire, f, currentFolder, destinationFolder)
                     self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
             
         return "Done"
