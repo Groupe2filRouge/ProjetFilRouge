@@ -1,0 +1,5 @@
+Flask==2.0.1
+
+boto3==1.17.102
+Markdown==3.3.4
+PyMongo==3.11.4 
