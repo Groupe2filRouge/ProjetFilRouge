@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for jenkins-groupe2-filrouge
+
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: 172.31.0.0/24
+      InstanceTenancy: default
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      # Tags: 
+      #   - Key: stack
+      #     Value: vpc-jenkins-groupe2-filrouge
+
+  
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags: 
+        - Key: stack
+          Value: gateway-jenkins-groupe2-filrouge
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: myVPC
+      # Tags:
+      # - Key: stack
+      #   Value: routetable-jenkins-groupe2-filrouge
+
+  myRoute:
+    Type: AWS::EC2::Route
+    DependsOn: myInternetGateway
+    Properties:
+       RouteTableId:
+         Ref: myRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId:
+         Ref: myInternetGateway
+
+  mySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: myVPC
+      CidrBlock: 172.31.0.0/24
+      AvailabilityZone: "eu-west-3a"
+      MapPublicIpOnLaunch: true
+      # Tags:
+      # - Key: stack
+      #   Value: subnet-jenkins-groupe2-filrouge
+
+  mySubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnet
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+        GroupDescription: Base Security Group
+        VpcId:
+          Ref: myVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            CidrIp: 0.0.0.0/0
+            FromPort: 22
+            ToPort: 22
+          - IpProtocol: tcp
+            CidrIp: 0.0.0.0/0
+            FromPort: 80
+            ToPort: 80
+          - IpProtocol: tcp
+            FromPort: 8080
+            ToPort: 8080
+            CidrIp: 0.0.0.0/0
+            
+  Ec2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      InstanceType : t2.micro
+      ImageId: ami-0f7cd40eac2214b37
+      KeyName: vm-jenkins-groupe2-filrouge
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet: 
+            - Ref: mySecurityGroup
+          SubnetId: 
+            Ref: mySubnet
+      Tags: 
+        - Key: Name
+          Value: vm-jenkins-groupe2-filrouge
+      UserData: 
+        Fn::Base64: |
+          #!/bin/bash -xe
+          apt update # good practice to update existing packages
+          usermod -aG docker ubuntu
+          curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          docker run --rm -d -p 8080:8080 -p 50000:50000 jenkinsci/blueocean

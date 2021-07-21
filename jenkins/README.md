@@ -90,3 +90,7 @@ Pense bete...
 > https://opensource.triology.de/jenkins/pipeline-syntax/globals
 > https://webhookrelay.com/v1/installation/cli.html
 > https://git-scm.com/docs/pretty-formats
+
+https://medium.com/@gustavo.guss/jenkins-building-docker-image-and-sending-to-registry-64b84ea45ee9
+
+https://www.jenkins.io/doc/book/pipeline/docker/
