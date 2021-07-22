@@ -35,6 +35,7 @@ def enzo():
     # TODO - remove tmp file after method
     gitSrv.clone("https://github.com/Groupe2filRouge/ProjetFilRouge.git")
     converterSrv.convert()
+    cloudSrv.push()
     return "Done"
 
 # The test adress for slack
