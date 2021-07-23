@@ -1,14 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: CloudFormation template for jenkins-groupe2-filrouge
 
-Parameters:
-  InstanceTypeParameter:
-    Type: String
-  KeyPairName:
-    Type: String
-  ImageIdParameter:
-    Type: String
-
 Resources:
   myVPC:
     Type: AWS::EC2::VPC
@@ -99,12 +91,9 @@ Resources:
   Ec2Instance: 
     Type: AWS::EC2::Instance
     Properties: 
-      InstanceType : 
-        Ref: InstanceTypeParameter 
-      ImageId: 
-        Ref: ImageIdParameter
-      KeyName:
-        Ref: KeyPairName
+      InstanceType : t2.micro
+      ImageId: ami-00c08ad1a6ca8ca7c
+      KeyName: vm-jenkins-groupe2-filrouge
       NetworkInterfaces: 
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
@@ -112,6 +101,9 @@ Resources:
             - Ref: mySecurityGroup
           SubnetId: 
             Ref: mySubnet
+      Tags: 
+        - Key: Name
+          Value: vm-jenkins-groupe2-filrouge
       UserData: 
         Fn::Base64: |
           #!/bin/bash -xe
@@ -120,7 +112,10 @@ Resources:
             https://pkg.jenkins.io/redhat-stable/jenkins.repo
           rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
           yum upgrade
-          yum install jenkins java-1.8.0-openjdk-devel python3 python3-pip python3-venv git -y
+          yum install jenkins java-1.8.0-openjdk-devel git -y
           systemctl daemon-reload
           systemctl start jenkins       
+          yum install -y docker
           usermod -aG docker jenkins
+          systemctl daemon-reload
+          systemctl start docker

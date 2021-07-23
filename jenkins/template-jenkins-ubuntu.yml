@@ -1,14 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: CloudFormation template for jenkins-groupe2-filrouge
 
-Parameters:
-  InstanceTypeParameter:
-    Type: String
-  KeyPairName:
-    Type: String
-  ImageIdParameter:
-    Type: String
-
 Resources:
   myVPC:
     Type: AWS::EC2::VPC
@@ -99,12 +91,9 @@ Resources:
   Ec2Instance: 
     Type: AWS::EC2::Instance
     Properties: 
-      InstanceType : 
-        Ref: InstanceTypeParameter 
-      ImageId: 
-        Ref: ImageIdParameter
-      KeyName:
-        Ref: KeyPairName
+      InstanceType : t2.micro
+      ImageId: ami-0f7cd40eac2214b37
+      KeyName: vm-jenkins-groupe2-filrouge
       NetworkInterfaces: 
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
@@ -112,15 +101,21 @@ Resources:
             - Ref: mySecurityGroup
           SubnetId: 
             Ref: mySubnet
+      Tags: 
+        - Key: Name
+          Value: vm-jenkins-groupe2-filrouge
       UserData: 
-        Fn::Base64: |
+        Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum update -y # good practice to update existing packages
-          wget -O /etc/yum.repos.d/jenkins.repo \
-            https://pkg.jenkins.io/redhat-stable/jenkins.repo
-          rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-          yum upgrade
-          yum install jenkins java-1.8.0-openjdk-devel python3 python3-pip python3-venv git -y
-          systemctl daemon-reload
-          systemctl start jenkins       
+          apt-get update # good practice to update existing packages          
+          apt-get install -y openjdk-11-jdk python3-venv python3-pip git
+          wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+          sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list'
+          apt-get update
+          apt-get install -y jenkins
+          apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          apt-get update
+          apt-get install -y docker-ce docker-ce-cli containerd.io
           usermod -aG docker jenkins

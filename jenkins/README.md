@@ -1,11 +1,18 @@
-> A la fin de l'installation le mot de passe initial de Jenkins sera affiché. Copiez le.
-> Se rendre à l'adresse http://192.168.1.3:8080/ et renseignez le mot de passe précédemment copié.
+> A la fin de l'installation se rendre sur la vm pour récupérer le mot de passe initial de Jenkins.
+'''
+	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+'''
+ Copiez le.
+> Se rendre à l'adresse http://{ip_instance_ec2}:8080/ et renseignez le mot de passe précédemment copié.
 
 Une page s'affiche avec 2 options possibles.
 - Choisir l'option 'Sélectionner les plugins à installer'.
 - Sélectionner alors l'onglet recommandés et recherchez  et cochez les plugins suivants:
 >  - Cobertura
 >  - Warnings Next Generation
+>  - GitHub
+>  - Git Parameter
+
 
 **Désactiver le plugin gradle**
 
@@ -17,7 +24,7 @@ Renseignez a minima les champs.
 > - Mot de passe
 > - Confirmation du mot de passe
 
-Cliquez sur "Continuez en tant qu'administrateur"
+Cliquez sur "Sauver et continuer"
 Cliquez sur "Sauver et terminer"
 Cliquez sur "Commencer à utiliser Jenkins"
 
@@ -25,10 +32,15 @@ Vous arrivez sur la page principale
 Sélectionner le menu "Administrer Jenkins" puis "Gestion des plugins". Placez vous sur l'onglet "Disponibles
 
 Dans la barre de recherche, recherchez les plugins suivants
->  - AnsiColor
+>  - Docker
+>  - Docker pipeline
 >  - Slack Notification
 
 Pour chacun cochez la case et cliquez sur "Install without restart"
+
+Penser à renseigner les credentials pour le dockerhub, l'idée est OBLIGATOIREMENT dockerhub car il est utilisé dans le pipeline.
+
+https://medium.com/@gustavo.guss/jenkins-building-docker-image-and-sending-to-registry-64b84ea45ee9
 
 Sélectionnez "Tableau de bord" puis "Nouveau item"
 Renseignez un nom de projet puis sélectionnez "Pipeline"
@@ -41,12 +53,6 @@ Copiez alors le contenu du fichier "pipeline.txt" du projet
 Cliquez sur "Sauver"
 
 Sur la page principale vous pouvez alors cliquer sur "Lancer un build"
-
-### Webhook-Relay-agent
-
-https://webhookrelay.com/v1/installation/cli.html#Registration-amp-Authentication
-
-https://webhookrelay.com/blog/2017/11/23/github-jenkins-guide/#Step-6-Setting-up-Webhook-Relay-agent
 
 ### Slack
 
@@ -90,7 +96,4 @@ Pense bete...
 > https://opensource.triology.de/jenkins/pipeline-syntax/globals
 > https://webhookrelay.com/v1/installation/cli.html
 > https://git-scm.com/docs/pretty-formats
-
-https://medium.com/@gustavo.guss/jenkins-building-docker-image-and-sending-to-registry-64b84ea45ee9
-
-https://www.jenkins.io/doc/book/pipeline/docker/
+> https://www.jenkins.io/doc/book/pipeline/docker/

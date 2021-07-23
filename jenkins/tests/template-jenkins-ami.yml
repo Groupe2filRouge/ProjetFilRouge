@@ -112,9 +112,11 @@ Resources:
             https://pkg.jenkins.io/redhat-stable/jenkins.repo
           rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
           yum upgrade
-          yum install jenkins java-1.8.0-openjdk-devel python3 python3-pip python3-venv git -y
+          yum install jenkins java-1.8.0-openjdk-devel git -y
           systemctl daemon-reload
           systemctl start jenkins       
           yum install -y docker
           usermod -aG docker jenkins
-          service docker start
+          usermod -aG docker ec2-user
+          systemctl daemon-reload
+          systemctl start docker

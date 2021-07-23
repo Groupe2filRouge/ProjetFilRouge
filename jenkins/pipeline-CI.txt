@@ -12,12 +12,13 @@ pipeline {
         
         stage('Checkout code') {
             steps {
-				echo "\u001b[35m[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME} par ${env.NODE_NAME}\u001b[0m"
-                // slackSend channel: 'C021DS82PMG', color: "#439FE0", message: "[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME}"
+				echo "[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME} par ${env.NODE_NAME}"
+                slackSend channel: 'C027BKQ8LSC', color: "#439FE0", message: "[Projet ${env.JOB_NAME}] - Lancement du build: ${env.BUILD_DISPLAY_NAME}"
                 
                 // Clean before all
                 cleanWs()
                 
+                // Checkout code
                 git url:'https://github.com/Groupe2filRouge/AppFilRouge', branch: "main"
             }
         }
@@ -31,54 +32,27 @@ pipeline {
                     env.GIT_AUTHOR_MAIL = sh (script: 'git log -1 --pretty=%ae ${GIT_COMMIT}', returnStdout: true).trim()
                 }
                 
-                echo "\u001b[35m[Projet ${env.JOB_NAME}] - Git commit #${env.GIT_COMMIT_NB} \"${env.GIT_COMMIT_MSG}\" @author: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})\u001b[0m"
-                // slackSend channel: 'C021DS82PMG', color: "#439FE0", message: "Dernier commit: https://github.com/apalpant/gradle-jenkins/commit/${env.GIT_COMMIT_NB} \nMessage: \"${env.GIT_COMMIT_MSG}\" par: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})"
+                echo "[Projet ${env.JOB_NAME}] - Git commit #${env.GIT_COMMIT_NB} \"${env.GIT_COMMIT_MSG}\" @author: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})"
+                slackSend channel: 'C027BKQ8LSC', color: "#439FE0", message: "Dernier commit: https://github.com/apalpant/gradle-jenkins/commit/${env.GIT_COMMIT_NB} \nMessage: \"${env.GIT_COMMIT_MSG}\" par: ${env.GIT_AUTHOR_MAIL} (${env.GIT_AUTHOR})"
             }
         }
        
         stage('Install dependencies') {
             steps {
+                // Run virtual environment
                 sh 'python3 -m venv venv'
                 sh '. venv/bin/activate'
-                sh 'python3 -m pip install pytest pytest-cov pycodestyle pylint markdown'
+
+                // Install tests dependencies
+                sh 'python3 -m pip install pytest pytest-cov pycodestyle pylint markdown xmlrunner'
+
+                // Install tests dependencies
                 sh 'python3 -m pip install -r src/requirements.txt'
             }   
         }
-        
-        stage('Build application') {
-            steps {
-		        echo 'Build application ....'
-                // sh '/opt/gradle/latest/bin/gradle packageDistribution'
-            }
-        }
 
-        stage('Test docker') {
-            agent {
-                docker {
-                    image 'python:3.8'
-                    // Run the container on the node specified at the top-level of the Pipeline, in the same workspace, rather than on a new node entirely:
-                    reuseNode true
-                }
-            }
-            steps {
-                sh 'python --version'
-                
-                 sh '''
-                    python -m venv .venv
-                    . .venv/bin/activate
-                    pip install pytest pytest-cov pycodestyle pylint xmlrunner
-                    pip install -r src/requirements.txt
-                    pytest src/ --cov=src --cov-report=html
-                '''
-                
-                sh 'echo "fini"'
-            }
-        }
-        
         stage('Publishing Code QA') {
             steps {
-                echo 'Publishing Code QA ....'
-                
                 // Run virtual environment
                 sh '. venv/bin/activate'
                 
@@ -118,16 +92,32 @@ pipeline {
             }
         }
         
-        stage('deploy') {
+        stage('Build docker image') {
             steps {
-               	echo 'Deploy ....'
                 script{
+                    // Build docker image
                     dockerImage = docker.build imagename
-                    docker.withRegistry( '', registryCredential ) {
+                }
+            }
+        }
+
+        stage('Push docker image on DockerHub') {
+            steps {
+                script{
+                    // Push generated docker image on DockerHub
+                    docker.withRegistry( '', registryCredential) {
                         dockerImage.push("$BUILD_NUMBER")
                         dockerImage.push('latest') 
                     }
                 }
+            }
+        }
+
+        stage('Remove local images') {
+            steps {
+                // remove docker images
+                sh("docker rmi -f imagename:latest || :")
+                sh("docker rmi -f imagename:$BUILD_NUMBER || :")
             }
         }
     }
@@ -135,22 +125,19 @@ pipeline {
         always {
             script {
                 color = "danger"
-                ansiColor = "\u001b[31m"
                 if (currentBuild.currentResult == "SUCCESS") {
                     color = "good"
-                    ansiColor = "\u001b[32m"
                 } else if (currentBuild.currentResult == "UNSTABLE") {
                     color = "warning"
-                    ansiColor = "\u001b[33m"
                 } 
                 ip = sh (script: 'curl -kLs ident.me', returnStdout: true).trim()
             }
             
-        echo "[Projet ${env.JOB_NAME}] - Fin du build avec le statut:  ${currentBuild.currentResult}\u001b[0m (${currentBuild.durationString})"
+        echo "[Projet ${env.JOB_NAME}] - Fin du build avec le statut:  ${currentBuild.currentResult} (${currentBuild.durationString})"
         echo "http://${ip}:8080/job/${env.JOB_NAME}/${currentBuild.number}/analysis/"
         echo "http://${ip}:8080/job/${env.JOB_NAME}/${currentBuild.number}/cobertura/" 
            
-        // slackSend channel: 'C021DS82PMG', color: "${color}", message: "[Projet ${env.JOB_NAME}] - Fin du build ${env.BUILD_DISPLAY_NAME} avec le statut: ${currentBuild.currentResult} (${currentBuild.durationString}) \nRapports: ${env.BUILD_URL}"
+        slackSend channel: 'C027BKQ8LSC', color: "${color}", message: "[Projet ${env.JOB_NAME}] - Fin du build ${env.BUILD_DISPLAY_NAME} avec le statut: ${currentBuild.currentResult} (${currentBuild.durationString}) \nRapports: http://${ip}:8080/job/${env.JOB_NAME}/${currentBuild.number}/cobertura/"
         }
     }
 }
