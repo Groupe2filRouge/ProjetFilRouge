@@ -16,20 +16,26 @@ class MessagingService():
         print("init MessagingService")
 
     # Test method for slack messages
-    def testSlack(self):
+    def testSlack(self, data):
         blocks = [
+            {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "New commit by: {}".format(data['commits'][0]['author']['name'])
+            }
+            },             
             {  
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
+                "text": "git_url: {}".format(data['repository']['git_url'])
             }
             }
         ]
 
         return self.post_message_to_slack("Text shown in popup.", blocks)
         
-
 
     # Post a given block message
     def post_message_to_slack(self, text, blocks = None):

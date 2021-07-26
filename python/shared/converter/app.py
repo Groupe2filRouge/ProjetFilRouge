@@ -23,13 +23,16 @@ app = Flask(__name__)
 def webhook():
     # TODO - check for others git account (not only github)
     data = json.loads(request.data)
-    print ("full_name: {}".format(data['repository']['full_name']))
-    print ("html_url: {}.git".format(data['repository']['html_url']))
-    print ("New commit by: {}".format(data['commits'][0]['author']['name']))
+    return messagingSrv.testSlack(data);
+    # print ("full_name: {}".format(data['repository']['full_name']))
+    # print ("html_url: {}.git".format(data['repository']['html_url']))
+    # print ("New commit by: {}".format(data['commits'][0]['author']['name']))
 
-    gitSrv.clone("{}.git".format(data['repository']['html_url']))
+    # gitSrv.clone("{}.git".format(data['repository']['html_url']))
     # converterSrv.convert()
     # cloudSrv.push("")
+    
+    return "Webhook intercepted and processed"
 
 # The test adress for slack
 @app.route("/testSlack", methods=["GET"])
