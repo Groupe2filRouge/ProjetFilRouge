@@ -41,6 +41,6 @@ class CloudService():
                 except:
                     data=open(local_path,"rb")
                     #self.s3_client.upload_fileobj(data, bucket, s3_path, ExtraArgs={'ACL': 'public-read','Metadata': {'Content-Type': 'text/html'}})
-                    self.s3_client.put_object(Key=s3_path,Body=data,Bucket=bucket,ContentType='text/html') #rajouté : Body=data
+                    self.s3_client.put_object(Key=s3_path,Body=data,Bucket=bucket,ContentType='text/html') #modifié : body=data et Key=s3_path
                     
         return "file uploaded"
