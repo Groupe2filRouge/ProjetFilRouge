@@ -29,20 +29,18 @@ class CloudService():
         for root, dirs, files in os.walk(path):
 
             for filename in files: #Voir de tester le nombre d'itérations vraiment faites...
-
                 # construct the full local path
                 local_path = os.path.join(root, filename)
 
                 # construct the full Dropbox path
                 relative_path = os.path.relpath(local_path, path)
                 s3_path = os.path.join(destination, relative_path)
-                print(s3_path)
 
                 try:
                     self.s3_client.head_object(Bucket=bucket, Key=s3_path)
                 except:
                     data=open(local_path,"rb")
-                    #print(s3_path)
-                    self.s3_client.upload_fileobj(data, bucket, s3_path, ExtraArgs={'ACL': 'public-read'})
-
+                    #self.s3_client.upload_fileobj(data, bucket, s3_path, ExtraArgs={'ACL': 'public-read','Metadata': {'Content-Type': 'text/html'}})
+                    self.s3_client.put_object(Key=s3_path,Body=data,Bucket=bucket,ContentType='text/html') #rajouté : Body=data
+                    
         return "file uploaded"

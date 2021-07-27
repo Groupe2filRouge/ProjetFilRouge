@@ -56,7 +56,7 @@ class ConverterService():
     def ajoutArbre(self, destinationFolder, currentFolder, f, repertoire):
     #partie pour le tree view:
         fichierHTML=destinationFolder+currentFolder+"/"+f[:len(f)-3]+".html"
-        print(arborescence)
+        #print(arborescence)
         arbo_html="<ul>"
         for dossier in arborescence.keys():
             arbo_html+="<li>"+dossier+"<ul>"
@@ -75,7 +75,7 @@ class ConverterService():
         fichier = open(fichierHTML, "w")
         fichier.write(total)
         fichier.close()
-        print(arbo_html)
+        #print(arbo_html)
 
     def browse(self, folder):
         #dossier temporaire pour la conversion
