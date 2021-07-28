@@ -22,8 +22,10 @@ app = Flask(__name__)
 @app.route("/github-webhook/", methods=["POST"])
 def webhook():
     # TODO - check for others git account (not only github)
+    popup_text = "redacteur has pushed on GitHub"
     data = json.loads(request.data)
-    return messagingSrv.format_slack_message(data);
+    blocks = messagingSrv.format_slack_message(data)
+    return messagingSrv.post_message_to_slack(popup_text, blocks);
     # print ("full_name: {}".format(data['repository']['full_name']))
     # print ("html_url: {}.git".format(data['repository']['html_url']))
     # print ("New commit by: {}".format(data['commits'][0]['author']['name']))

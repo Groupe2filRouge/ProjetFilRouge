@@ -34,11 +34,11 @@ class MessagingService():
             }
         ]
 
-        return self.post_message_to_slack("redacteur has pushed on GitHub !", blocks)
+        return blocks
         
 
     # Post a given block message
-    def post_message_to_slack(self, text, blocks = None):
+    def post_message_to_slack(self, text, blocks):
         return requests.post('https://slack.com/api/chat.postMessage', {
             #'token': os.getenv('SLACK_TOKEN'),
             'token': os.getenv('SLACK_TOKEN'),
