@@ -23,7 +23,7 @@ app = Flask(__name__)
 def webhook():
     # TODO - check for others git account (not only github)
     data = json.loads(request.data)
-    return messagingSrv.testSlack(data);
+    return messagingSrv.format_slack_message(data);
     # print ("full_name: {}".format(data['repository']['full_name']))
     # print ("html_url: {}.git".format(data['repository']['html_url']))
     # print ("New commit by: {}".format(data['commits'][0]['author']['name']))
@@ -37,7 +37,7 @@ def webhook():
 # The test adress for slack
 @app.route("/testSlack", methods=["GET"])
 def testSlack():
-    return messagingSrv.testSlack();	
+    return messagingSrv.format_slack_message();	
 
 # Checks to see if the name of the package is the run as the main package.
 if __name__ == "__main__":
