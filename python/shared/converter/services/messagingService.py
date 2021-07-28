@@ -15,8 +15,8 @@ class MessagingService():
     def __init__(self):
         print("init MessagingService")
 
-    # Test method for slack messages
-    def testSlack(self, data):
+    # Format slack message
+    def format_slack_message(self, data):
         blocks = [
             {
             "type": "section",
@@ -34,12 +34,13 @@ class MessagingService():
             }
         ]
 
-        return self.post_message_to_slack("Text shown in popup.", blocks)
+        return self.post_message_to_slack("redacteur has pushed on GitHub !", blocks)
         
 
     # Post a given block message
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
+            #'token': os.getenv('SLACK_TOKEN'),
             'token': os.getenv('SLACK_TOKEN'),
             'channel': 'C027BKQ8LSC',
             'text': text,
