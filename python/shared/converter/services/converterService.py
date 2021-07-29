@@ -102,14 +102,3 @@ class ConverterService():
         return "Done"
 
 
-#def suppr(self, destinationFolder, folder):
-    #suppression du contenu du dossier temporaire
- #   destination_tmp=destinationFolder
- #   clone_tmp=folder
- #   try:
-#        shutil.rmtree(destination_tmp)
-#        shutil.rmtree(clone_tmp)
-#    except OSError as erreur:
-#        print(f'Error: {destination_tmp} : {erreur.strerror}')
-
-
