@@ -3,6 +3,7 @@ import os
 import json
 import base64
 import hashlib
+import shutil
 
 # The service for cloud operations
 class CloudService():
@@ -25,10 +26,10 @@ class CloudService():
         destination=""
         bucket="test-site-enzo"
         path="/home/shared/converter/tmp"
-        # Du code copié d'Internet, ça ne marche qu'à moitié et je ne saurais pas vraiment expliquer comment ou pourquoi ¯\_(ツ)_/¯ 
+        # Du code copié d'Internet, je ne saurais pas vraiment expliquer comment ça marche ¯\_(ツ)_/¯ 
         for root, dirs, files in os.walk(path):
 
-            for filename in files: #Voir de tester le nombre d'itérations vraiment faites...
+            for filename in files:
                 # construct the full local path
                 local_path = os.path.join(root, filename)
 
@@ -41,6 +42,18 @@ class CloudService():
                 except:
                     data=open(local_path,"rb")
                     #self.s3_client.upload_fileobj(data, bucket, s3_path, ExtraArgs={'ACL': 'public-read','Metadata': {'Content-Type': 'text/html'}})
-                    self.s3_client.put_object(Key=s3_path,Body=data,Bucket=bucket,ContentType='text/html') #modifié : body=data et Key=s3_path
-                    
+                    self.s3_client.put_object(Key=s3_path,Body=data,Bucket=bucket,ContentType='text/html;charset=utf-8') #modifié : body=data et Key=s3_path et ContentType='text/html;charset=utf-8'
+                    data.close() #test pour supprimer les erreurs au nettoyage, marche pas.
+        
+        #suppression du contenu du dossier temporaire
+        html_tmp="/home/shared/converter/tmp"
+        #clone_tmp="/home/vagrant/tmp/clone"
+        #try:
+        #    shutil.rmtree(clone_tmp)
+        #except OSError as erreur:
+        #    print(f'Error: {clone_tmp} : {erreur.strerror}')
+        try:
+            shutil.rmtree(html_tmp)
+        except OSError as erreur:
+            print(f'Error: {html_tmp} : {erreur.strerror}')    #retourne toujours une erreur "text file busy", impossible de nettoyer le contenu html
         return "file uploaded"

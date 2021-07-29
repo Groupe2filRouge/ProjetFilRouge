@@ -5,12 +5,6 @@ import tempfile
 import shutil
 from markdown.extensions.toc import TocExtension
 
-# Concernant la table des matières
-#Un document *.md = <ul>, un "#" est un menu, plusieurs "#" qui s'enchainent sont des sous-menus
-#La table des matières doit être en haut de la première page (premier doc converti) dans un <div>
-#
-#
-
 arborescence={} #pour accéder à l'arboscence depuis toutes les fonctions
 # The service for convertion operations
 class ConverterService():
@@ -78,25 +72,11 @@ class ConverterService():
         #print(arbo_html)
 
     def browse(self, folder):
-        #dossier temporaire pour la conversion
-        # ignore les dossiers cachés
-            # le repertoire = ul
-            # 1 iteration: repertoire = rep courant
-            # 2 iteration: repertoire = arbo
-            # 3 iteration: repertoire = ss-arbo
- 
-            # Quand tu reparcours pour chaque répertoire tu vas aller voir dans le dictionnaires ces fichiers associes
-            # Concretement "<ul>" + nom_repertoire_epure + (boucle sur les fichiers => "<li>{}</li>".format(nom_fichier)) + "</ul>"
-            # <ul> nom_repertoire_epure => tu prends que la partie apres le dernier slash pour avoir ton nom de repertoire.
-            #   <li href="nom_complet_repertoire + / + nom_fichier"> page 1 </li>
-            #   <li href="arbo + / + page1.html"> page 1 </li>
-            #   <li> page 2 </li>
-            #   # boucle...
-            # </ul>
-            # file.seek(0) pour inserer en debt document, regarder les exemples sur le net
-
-        destinationFolder="/home/shared/converter/tmp"   
-            
+            #si le dossier de destination n'existe pas :
+        if(not os.path.exists("/home/shared/converter/tmp")):
+            os.makedirs("/home/shared/converter/tmp")
+        
+        destinationFolder="/home/shared/converter/tmp"
         
         for (repertoire, sousRepertoires, fichiers) in walk(folder):
             #ignore les dossiers cachés
@@ -104,39 +84,32 @@ class ConverterService():
                 break
             for f in fichiers:
                 # Si on a un ".md" alors on convertit
-                #print("Valeur Repertoire : ***"+repertoire)
                 if(f.find(".md") != -1):
                     # Compute current folder where f is 
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
-                    #print("current folder: " + currentFolder)
                     self.convert2Html(repertoire, f, currentFolder, destinationFolder)
-                    #self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
         for (repertoire, sousRepertoires, fichiers) in walk(folder):
             #ignore les dossiers cachés
             if(repertoire.find('.')==0):
                 break
             for f in fichiers:
                 # Si on a un ".md" alors on convertit
-                #print("Valeur Repertoire : ***"+repertoire)
                 if(f.find(".md") != -1):
                     # Compute current folder where f is 
                     currentFolder = repertoire[len(folder) : len(repertoire)]  #retiré le  - 1 après le premier folder
-                    #print("current folder: " + currentFolder)
-                    #self.convert2Html(repertoire, f, currentFolder, destinationFolder)
                     self.ajoutArbre(destinationFolder, currentFolder, f, repertoire)
-            
+
         return "Done"
 
 
-def suppr():
-    if(not os.path.exists("/home/shared/converter/tmp")):
-        os.makedirs("/home/shared/converter/tmp")
-    else:
-        destinationFolder="/home/shared/converter/tmp"
-        print('###Dossier temporaire : ', destinationFolder)
-        #suppression du contenu du dossier temporaire
-    dossier_tmp=destinationFolder
-    try:
-        shutil.rmtree(dossier_tmp)
-    except OSError as erreur:
-        print(f'Error: {dossier_tmp} : {erreur.strerror}')
+#def suppr(self, destinationFolder, folder):
+    #suppression du contenu du dossier temporaire
+ #   destination_tmp=destinationFolder
+ #   clone_tmp=folder
+ #   try:
+#        shutil.rmtree(destination_tmp)
+#        shutil.rmtree(clone_tmp)
+#    except OSError as erreur:
+#        print(f'Error: {destination_tmp} : {erreur.strerror}')
+
+
